@@ -4,7 +4,7 @@
  * @Author: Ricardo Lu<shenglu1202@163.com>
  * @Date: 2022-07-15 22:07:29
  * @LastEditors: Ricardo Lu
- * @LastEditTime: 2023-02-12 17:42:59
+ * @LastEditTime: 2023-02-12 18:58:55
  */
 #pragma once
 
@@ -71,7 +71,7 @@ public:
     ~VideoPipeline     ();
     bool Create        ();
     bool Start         ();
-    bool Pause         ();
+    bool Stop          ();
     bool Resume        ();
     void Destroy       ();
     void SetCallbacks  (PutFrameFunc func, void* args);

@@ -1,10 +1,10 @@
 /*
- * @Description: Inference decoded stream with libYOLOv5s.so.
- * @version: 2.2
+ * @Description: Inference decoded stream with yolov5-tensorrt(https://github.com/noahmr/yolov5-tensorrt).
+ * @version: 1.0
  * @Author: Ricardo Lu<shenglu1202@163.com>
  * @Date: 2022-10-11 11:50:40
  * @LastEditors: Ricardo Lu
- * @LastEditTime: 2023-02-12 17:42:34
+ * @LastEditTime: 2023-02-13 20:46:50
  */
 
 #include "VideoAnalyzer.h"
@@ -25,8 +25,9 @@ void VideoAnalyzer::InferenceFrame()
     }
 }
 
-VideoAnalyzer::VideoAnalyzer()
+VideoAnalyzer::VideoAnalyzer(VideoAnalyzerConfig& config)
 {
+    m_config = config;
     isRunning = false;
 }
 
@@ -35,31 +36,47 @@ VideoAnalyzer::~VideoAnalyzer()
     DeInit();
 }
 
-bool VideoAnalyzer::Init(Json::Value& model)
+bool VideoAnalyzer::Init()
 {
+    detector = std::make_unique<yolov5::Detector>();
+    classes = std::make_unique<yolov5::Classes>();
 
-    std::string modelName = model["model-name"].asString();
-    std::string engineFile = model["engine-file"].asString();
-    LOG_INFO("Load model: {}", engineFile);
-    std::string classesFile = model["classes-file"].asString();
-    LOG_INFO("Load classes: {}", classesFile);
-
-    detector = std::shared_ptr<yolov5::Detector>(new yolov5::Detector());
     yolov5::Result r = detector->init();
     if(r != yolov5::RESULT_SUCCESS) {
         LOG_ERROR("yolov5::Detector Init() failed.");
         return false;
     }
-    r = detector->loadEngine(engineFile);
+
+    r = detector->loadEngine(m_config.engine_file);
     if(r != yolov5::RESULT_SUCCESS) {
-        LOG_ERROR("yolov5::Detector load engine: {} failed.", engineFile);
+        LOG_ERROR("yolov5::Detector load engine: {} failed.", m_config.engine_file);
         return false;
     }
 
-    yolov5::Classes classes;
-    classes.setLogger(detector->logger());
-    r = classes.loadFromFile(classesFile);
-    detector->setClasses(classes);
+    r = detector->setScoreThreshold(m_config.score_threshold);
+    if(r != yolov5::RESULT_SUCCESS) {
+        LOG_ERROR("yolov5::Detector set score threshold failed.");
+        return false;
+    }
+
+    r = detector->setNmsThreshold(m_config.nms_threshold);
+    if(r != yolov5::RESULT_SUCCESS) {
+        LOG_ERROR("yolov5::Detector set nms threshold failed.");
+        return false;
+    }
+
+    classes->setLogger(detector->logger());
+    r = classes->loadFromFile(m_config.classes_file);
+    if(r != yolov5::RESULT_SUCCESS) {
+        LOG_ERROR("yolov5::Classes load classes: {} failed.", m_config.classes_file);
+        return false;
+    }
+
+    r = detector->setClasses(*classes.get());
+    if(r != yolov5::RESULT_SUCCESS) {
+        LOG_ERROR("yolov5::Classes set classes failed.");
+        return false;
+    }
 
     return true;
 }
@@ -69,10 +86,11 @@ bool VideoAnalyzer::DeInit()
     if (inferThread) {
         isRunning = false;
         inferThread->join();
-        inferThread = nullptr;
+        inferThread.reset();
     }
 
-    detector = nullptr;
+    if (detector) detector.reset(nullptr);
+    if (classes) classes.reset(nullptr);
     return true;
 }
 
@@ -85,6 +103,16 @@ bool VideoAnalyzer::Start()
         return false;
     }
 
+    return true;
+}
+
+bool VideoAnalyzer::Stop()
+{
+    if (inferThread) {
+        isRunning = false;
+        inferThread->join();
+        inferThread.reset();
+    }
     return true;
 }
 

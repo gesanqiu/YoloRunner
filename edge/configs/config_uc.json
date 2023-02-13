@@ -1,6 +1,7 @@
 {
     "name":"Channel0",
     "VideoPipeline-Config":{
+        "name":"videopipeline-0",
         "input-config":{
             "type":2,
             "stream":{
@@ -49,9 +50,11 @@
     },
     "VideoAnalyzer-Config":{
         "model-config":{
-            "model-name":"yolov5s-1",
+            "name":"yolov5s-0",
             "engine-file":"../model/yolov5s.engine",
-            "classes-file":"../model/coco.txt"
+            "classes-file":"../model/coco.txt",
+            "score-threshold":0.25,
+            "nms-threshold":0.45
         }
     }
 }

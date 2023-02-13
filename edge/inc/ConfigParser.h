@@ -4,7 +4,7 @@
  * @Author: Ricardo Lu<shenglu1202@163.com>
  * @Date: 2023-02-12 12:43:29
  * @LastEditors: Ricardo Lu
- * @LastEditTime: 2023-02-12 17:40:12
+ * @LastEditTime: 2023-02-12 19:12:26
  */
 
 #pragma once
@@ -18,15 +18,29 @@
 
 static Json::Reader g_reader;
 
-static bool configVideoAnalyzerConfig(VideoAnalyzerConfig& vaConfig, Json::Value& value)
+static bool configVideoAnalyzerConfig(VideoAnalyzerConfig& config, Json::Value& value)
 {
+    if (value.isMember("model-config")) {
+        Json::Value modelConfig = value["model-config"];
+        config.analyzer_id = modelConfig["name"].asString();
+        config.engine_file = modelConfig["engine-file"].asString();
+        LOG_INFO("Analyzer[{}]: engine file: {}", config.analyzer_id, config.engine_file);
+        config.classes_file = modelConfig["classes-file"].asString();
+        LOG_INFO("Analyzer[{}]: classes file: {}", config.analyzer_id, config.classes_file);
+        config.score_threshold = modelConfig["score-threshold"].asDouble();
+        LOG_INFO("Analyzer[{}]: score threshold: {}", config.analyzer_id, config.score_threshold);
+        config.nms_threshold = modelConfig["nms-threshold"].asDouble();
+        LOG_INFO("Analyzer[{}]: nms threshould: {}", config.analyzer_id, config.nms_threshold);
+    }
 
+    return true;
 }
 
-static bool configVideoPipelineConfig(VideoPipelineConfig& vpConfig, Json::Value& value)
+static bool configVideoPipelineConfig(VideoPipelineConfig& config, Json::Value& value)
 {
-    if (root.isMember("input-config")) {
-        Json::Value inputConfig = root["input-config"];
+    config.pipeline_id = value["name"].asString();
+    if (value.isMember("input-config")) {
+        Json::Value inputConfig = value["input-config"];
         config.input_type = inputConfig["type"].asInt();    // 0-MP4 / 1-RTSP / 2-USB Camera
         LOG_INFO("Pipeline[{}]: type: {}", config.pipeline_id, config.input_type);
 
@@ -75,8 +89,8 @@ static bool configVideoPipelineConfig(VideoPipelineConfig& vpConfig, Json::Value
             inputConfig["text-rgb"][0].asInt(), inputConfig["text-rgb"][1].asInt(), inputConfig["text-rgb"][2].asInt());
     }
 
-    if (root.isMember("output-config")) {
-        Json::Value outputConfig = root["output-config"];
+    if (value.isMember("output-config")) {
+        Json::Value outputConfig = value["output-config"];
         if (outputConfig.isMember("display")) {
             Json::Value displayConfig = outputConfig["display"];
             config.enable_hdmi = displayConfig["enable"].asBool();
@@ -115,6 +129,8 @@ static bool configVideoPipelineConfig(VideoPipelineConfig& vpConfig, Json::Value
             LOG_INFO("Pipeline[{}]: videoconvert format: {}", config.pipeline_id, config.cvt_format);
         }
     }
+
+    return true;
 }
 
 static bool configParse(YoloChannelConfig& config, std::string& configString)
@@ -152,7 +168,7 @@ static bool configParse(YoloChannelConfig& config, std::ifstream& configStream)
     LOG_INFO("Parse configurations from ifstream.");
 
     Json::Value root;
-    g_reader.parse(in, root);
+    g_reader.parse(configStream, root);
 
     if (root.isMember("name")) config.m_chanelId = root["name"].asString();
     else {

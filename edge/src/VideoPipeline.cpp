@@ -4,7 +4,7 @@
  * @Author: Ricardo Lu<shenglu1202@163.com>
  * @Date: 2022-07-15 22:07:19
  * @LastEditors: Ricardo Lu
- * @LastEditTime: 2023-02-12 17:56:21
+ * @LastEditTime: 2023-02-12 18:58:51
  */
 
 #include <gstnvdsmeta.h>
@@ -773,7 +773,7 @@ bool VideoPipeline::Start(void)
     return true;
 }
 
-bool VideoPipeline::Pause(void)
+bool VideoPipeline::Stop(void)
 {
     GstState state, pending;
 
