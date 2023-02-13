@@ -20,23 +20,19 @@
             "height":1080,
             "sync":false,
             "live-source":true,
-            "memory-type":3,
-            "bbox-thickness":2,
-            "text-thickness":2,
-            "bbox-rgb":[0, 255, 0],
-            "text-rgb":[0, 255, 0]
+            "memory-type":3
         },
         "output-config":{
             "display":{
                 "enable":true,
                 "sync":false,
-                "left":0,
-                "top":0,
-                "width":1920,
-                "height":1080
+                "window-x":0,
+                "window-y":0,
+                "window-width":1920,
+                "window-height":1080
             },
             "rtmp":{
-                "enable":false,
+                "enable":true,
                 "bitrate":400000,
                 "iframeinterval":30,
                 "uri":"rtmp://127.0.0.1:1935/live/test"
@@ -45,12 +41,16 @@
                 "enable":true,
                 "memory-type":3,
                 "format":"RGBA"
-            }
+            },
+            "bbox-thickness":2,
+            "text-thickness":2,
+            "bbox-rgb":[0, 255, 0],
+            "text-rgb":[0, 255, 0]
         }
     },
     "VideoAnalyzer-Config":{
+        "name":"yolov5s-0",
         "model-config":{
-            "name":"yolov5s-0",
             "engine-file":"../model/yolov5s.engine",
             "classes-file":"../model/coco.txt",
             "score-threshold":0.25,

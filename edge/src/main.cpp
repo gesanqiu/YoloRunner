@@ -4,7 +4,7 @@
  * @Author: Ricardo Lu<shenglu1202@163.com>
  * @Date: 2022-07-15 22:07:33
  * @LastEditors: Ricardo Lu
- * @LastEditTime: 2023-02-12 18:36:11
+ * @LastEditTime: 2023-02-13 22:58:01
  */
 
 #include <sys/stat.h>
@@ -43,19 +43,30 @@ int main(int argc, char* argv[])
 {
     google::ParseCommandLineFlags(&argc, &argv, true);
 
-    YoloChannelConfig yolo_channel_config;
-    std::ifstream in(FLAGS_config_file, std::ios::binary);
-    configParse(yolo_channel_config, in);
-    YoloChannel* yolo_channel = new YoloChannel(yolo_channel_config);
-
     gst_init(&argc, &argv);
 
     g_setenv("GST_DEBUG_DUMP_DOT_DIR", "/home/ricardo/workSpace/YoloRunner/edge/build", true);
+
+    YoloChannelConfig yolo_channel_config;
+    YoloChannel* yolo_channel = nullptr;
+    std::ifstream in(FLAGS_config_file, std::ios::binary);
+
+    if (!in.is_open()) {
+        LOG_ERROR("Failed to open config file: {}", FLAGS_config_file);
+        goto exit;
+    }
 
     if (!(g_main_loop = g_main_loop_new(NULL, FALSE))) {
         LOG_ERROR("Failed to new a object with type GMainLoop");
         goto exit;
     }
+
+    if (CONFIG_PARSE_SUCCESS != ConfigParse(yolo_channel_config, in)) {
+        LOG_ERROR("Parse config file: {} error.", FLAGS_config_file);
+        goto exit;
+    }
+    LOG_INFO("Channel[{}] config success.", yolo_channel_config.m_chanelId);
+    yolo_channel = new YoloChannel(yolo_channel_config);
 
     yolo_channel->Init();
     yolo_channel->Start();
@@ -63,7 +74,7 @@ int main(int argc, char* argv[])
     g_main_loop_run(g_main_loop);
 
 exit:
-    if (yolo_channel) {
+    if (nullptr != yolo_channel) {
         yolo_channel->DeInit();
         delete yolo_channel;
         yolo_channel = nullptr;

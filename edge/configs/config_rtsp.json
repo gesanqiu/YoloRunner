@@ -1,53 +1,60 @@
 {
-    "name":"pipeline0",
-    "input-config":{
-        "type":1,
-        "stream":{
-            "uri":"rtsp://127.0.0.1:554/live/test",
-            "file-loop":false,
-            "rtsp-latency":0,
-            "rtp-protocol":4
-        },
-        "usb-camera":{
-            "device":"/dev/video0",
-            "format":"MJPG",
-            "framerate-n":30,
-            "framerate-d":1
-        },
-        "width":1920,
-        "height":1080,
-        "sync":true,
-        "live-source":false,
-        "memory-type":3,
-        "bbox-thickness":2,
-        "text-thickness":1,
-        "bbox-rgb":[0, 255, 0],
-        "text-rgb":[0, 255, 0]
-    },
-    "output-config":{
-        "display":{
-            "enable":true,
-            "sync":true,
-            "left":0,
-            "top":0,
+    "name":"Channel0",
+    "VideoPipeline-Config":{
+        "name":"videopipeline-0",
+        "input-config":{
+            "type":0,
+            "stream":{
+                "uri":"rtsp://127.0.0.1:554/live/test",
+                "file-loop":false,
+                "rtsp-latency":0,
+                "rtp-protocol":4
+            },
+            "usb-camera":{
+                "device":"/dev/video0",
+                "format":"MJPG",
+                "framerate-n":30,
+                "framerate-d":1
+            },
             "width":1920,
-            "height":1080
+            "height":1080,
+            "sync":false,
+            "live-source":true,
+            "memory-type":3
         },
-        "rtmp":{
-            "enable":false,
-            "bitrate":100000,
-            "iframeinterval":30,
-            "uri":"rtmp://127.0.0.1:1935/live/test"
-        },
-        "inference":{
-            "enable":true,
-            "memory-type":3,
-            "format":"RGBA"
+        "output-config":{
+            "display":{
+                "enable":true,
+                "sync":false,
+                "window-x":0,
+                "window-y":0,
+                "window-width":1920,
+                "window-height":1080
+            },
+            "rtmp":{
+                "enable":false,
+                "bitrate":400000,
+                "iframeinterval":30,
+                "uri":"rtmp://127.0.0.1:1935/live/test"
+            },
+            "inference":{
+                "enable":true,
+                "memory-type":3,
+                "format":"RGBA"
+            },
+            "bbox-thickness":2,
+            "text-thickness":2,
+            "bbox-rgb":[0, 255, 0],
+            "text-rgb":[0, 255, 0]
         }
     },
-    "model-config":{
-        "model-name":"yolov5s-1",
-        "engine-file":"../model/yolov5s.engine",
-        "classes-file":"../model/coco.txt"
+    "VideoAnalyzer-Config":{
+        "name":"yolov5s-0",
+        "model-config":{
+            "engine-file":"../model/yolov5s.engine",
+            "classes-file":"../model/coco.txt",
+            "score-threshold":0.25,
+            "nms-threshold":0.45
+        }
     }
 }
