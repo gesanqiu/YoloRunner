@@ -4,7 +4,7 @@
  * @Author: Ricardo Lu<shenglu1202@163.com>
  * @Date: 2022-07-15 22:07:19
  * @LastEditors: Ricardo Lu
- * @LastEditTime: 2023-02-12 18:58:51
+ * @LastEditTime: 2023-02-15 20:52:23
  */
 
 #include <gstnvdsmeta.h>
@@ -13,6 +13,8 @@
 #include "VideoPipeline.h"
 #include "DrawNV12.h"
 #include "DrawRGBA.h"
+
+namespace edge {
 
 static GstPadProbeReturn cb_sync_before_buffer_probe(
     GstPad* pad,
@@ -929,3 +931,5 @@ void VideoPipeline::SetUserData(std::shared_ptr<DoubleBufCache<std::vector<yolov
 {
     m_resultCache = user_data;
 }
+
+}   // namespace edge

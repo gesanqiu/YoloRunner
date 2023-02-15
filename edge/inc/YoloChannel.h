@@ -1,21 +1,23 @@
 /*
- * @Description: 
- * @version: 
+ * @Description: Header of YoloChannel.
+ * @version: 1.1
  * @Author: Ricardo Lu<shenglu1202@163.com>
  * @Date: 2023-02-12 12:43:14
  * @LastEditors: Ricardo Lu
- * @LastEditTime: 2023-02-12 19:08:22
+ * @LastEditTime: 2023-02-15 20:59:40
  */
 #pragma once
 
 #include "Common.h"
 #include "VideoPipeline.h"
-#include "VideoAnalyzer.h"
+#include "VideoTask.h"
+
+namespace edge {
 
 struct YoloChannelConfig {
     std::string         m_chanelId;
     VideoPipelineConfig m_vpConfig;
-    VideoAnalyzerConfig m_vaConfig;
+    VideoTaskConfig m_vtConfig;
 };
 
 class YoloChannel {
@@ -30,7 +32,9 @@ public:
 private:
     YoloChannelConfig m_config;
     std::unique_ptr<VideoPipeline> m_vp;
-    std::unique_ptr<VideoAnalyzer> m_va;
+    std::unique_ptr<VideoTask> m_vt;
     std::shared_ptr<SafeQueue<cv::Mat>> m_imageQueue;
     std::shared_ptr<DoubleBufCache<std::vector<yolov5::Detection>>> m_resultsCache;
 };
+
+}   // namespace edge

@@ -1,14 +1,27 @@
 /*
  * @Description: Implement of VideoPipeline on DeepStream.
- * @version: 2.0
+ * @version: 2.1
  * @Author: Ricardo Lu<shenglu1202@163.com>
  * @Date: 2022-07-15 22:07:29
  * @LastEditors: Ricardo Lu
- * @LastEditTime: 2023-02-12 18:58:55
+ * @LastEditTime: 2023-02-15 20:51:16
  */
 #pragma once
 
 #include "Common.h"
+
+#define VIDEO_PIPELINE_CREATOR(CLASSNAME) \
+    static std::shared_ptr<VideoPipeline> Create##CLASSNAME() { \
+        std::shared_ptr<CLASSNAME> tmp; \
+        tmp.reset(new CLASSNAME()); \
+        return tmp; \
+    } \
+    static bool Bool##CLASSNAME = ChannelController::RegisterVideoPipelineCreator(#CLASSNAME, std::bind(Create##CLASSNAME));
+
+namespace edge {
+
+class VideoPipeline;
+typedef std::function<std::shared_ptr<VideoPipeline>()> VideoPipelineCreator;
 
 static int pipeline_id = 0;
 
@@ -136,6 +149,8 @@ public:
     GstElement*         m_nvvideoconvert2;  /* convert NV12(nvv4l2decoder) to RGBA */
     GstElement*         m_capfilter3;
 };
+
+}   // namespace edge
 
 
 /*

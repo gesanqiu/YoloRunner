@@ -4,7 +4,7 @@
  * @Author: Ricardo Lu<shenglu1202@163.com>
  * @Date: 2023-02-12 12:43:29
  * @LastEditors: Ricardo Lu
- * @LastEditTime: 2023-02-13 23:31:17
+ * @LastEditTime: 2023-02-15 20:53:55
  */
 
 #pragma once
@@ -18,7 +18,9 @@
 
 static Json::Reader g_reader;
 
-static int ConfigVideoAnalyzerConfig(VideoAnalyzerConfig& config, Json::Value& value)
+using namespace edge;
+
+static int ConfigVideoTaskConfig(VideoTaskConfig& config, Json::Value& value)
 {
     if (value.isMember("name")) {
         if (value["name"].isString()) {
@@ -601,7 +603,7 @@ static int ConfigParse(YoloChannelConfig& config, std::string& configString)
     }
 
     if (root.isMember("VideoAnalyzer-Config")) {
-        ConfigVideoAnalyzerConfig(config.m_vaConfig, root["VideoAnalyzer-Config"]);
+        ConfigVideoTaskConfig(config.m_vtConfig, root["VideoAnalyzer-Config"]);
     } else {
         LOG_ERROR("Parse channel config error: lack member 'VideoAnalyzer-Config'.");
         return CONFIG_LACK_MEMBER;
@@ -638,7 +640,7 @@ static int ConfigParse(YoloChannelConfig& config, std::ifstream& configStream)
     }
 
     if (root.isMember("VideoAnalyzer-Config")) {
-        ConfigVideoAnalyzerConfig(config.m_vaConfig, root["VideoAnalyzer-Config"]);
+        ConfigVideoTaskConfig(config.m_vtConfig, root["VideoAnalyzer-Config"]);
     } else {
         LOG_ERROR("Parse channel config error: lack member 'VideoAnalyzer-Config'.");
         return CONFIG_LACK_MEMBER;

@@ -93,7 +93,7 @@ endif()
 
 add_executable(${PROJECT_NAME}
     src/VideoPipeline.cpp
-    src/VideoAnalyzer.cpp
+    src/VideoTask.cpp
     src/YoloChannel.cpp
     src/main.cpp
 )

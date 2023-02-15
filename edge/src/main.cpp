@@ -1,10 +1,10 @@
 /*
- * @Description: Test program of VideoPipeline.
+ * @Description: Test program of YoloChannel.
  * @version: 1.0
  * @Author: Ricardo Lu<shenglu1202@163.com>
  * @Date: 2022-07-15 22:07:33
  * @LastEditors: Ricardo Lu
- * @LastEditTime: 2023-02-13 22:58:01
+ * @LastEditTime: 2023-02-15 21:00:59
  */
 
 #include <sys/stat.h>
@@ -19,6 +19,8 @@
 #include "YoloChannel.h"
 
 static GMainLoop* g_main_loop = NULL;
+
+using namespace edge;
 
 static bool validateConfigPath(const char* name, const std::string& value) 
 { 

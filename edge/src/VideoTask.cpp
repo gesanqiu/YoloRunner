@@ -4,12 +4,14 @@
  * @Author: Ricardo Lu<shenglu1202@163.com>
  * @Date: 2022-10-11 11:50:40
  * @LastEditors: Ricardo Lu
- * @LastEditTime: 2023-02-13 20:46:50
+ * @LastEditTime: 2023-02-15 20:52:20
  */
 
-#include "VideoAnalyzer.h"
+#include "VideoTask.h"
 
-void VideoAnalyzer::InferenceFrame()
+namespace edge {
+
+void VideoTask::InferenceFrame()
 {
     std::shared_ptr<cv::Mat> image;
 
@@ -25,18 +27,18 @@ void VideoAnalyzer::InferenceFrame()
     }
 }
 
-VideoAnalyzer::VideoAnalyzer(VideoAnalyzerConfig& config)
+VideoTask::VideoTask(VideoTaskConfig& config)
 {
     m_config = config;
     isRunning = false;
 }
 
-VideoAnalyzer::~VideoAnalyzer()
+VideoTask::~VideoTask()
 {
     DeInit();
 }
 
-bool VideoAnalyzer::Init()
+bool VideoTask::Init()
 {
     detector = std::make_unique<yolov5::Detector>();
     classes = std::make_unique<yolov5::Classes>();
@@ -81,7 +83,7 @@ bool VideoAnalyzer::Init()
     return true;
 }
 
-bool VideoAnalyzer::DeInit()
+bool VideoTask::DeInit()
 {
     if (inferThread) {
         isRunning = false;
@@ -94,10 +96,10 @@ bool VideoAnalyzer::DeInit()
     return true;
 }
 
-bool VideoAnalyzer::Start()
+bool VideoTask::Start()
 {
     isRunning = true;
-    if (!(inferThread = std::make_shared<std::thread>(std::bind(&VideoAnalyzer::InferenceFrame, this)))) {
+    if (!(inferThread = std::make_shared<std::thread>(std::bind(&VideoTask::InferenceFrame, this)))) {
         LOG_ERROR("Failed to new a std::thread object");
         isRunning = false;
         return false;
@@ -106,7 +108,7 @@ bool VideoAnalyzer::Start()
     return true;
 }
 
-bool VideoAnalyzer::Stop()
+bool VideoTask::Stop()
 {
     if (inferThread) {
         isRunning = false;
@@ -116,12 +118,14 @@ bool VideoAnalyzer::Stop()
     return true;
 }
 
-void VideoAnalyzer::SetUserData(std::shared_ptr<SafeQueue<cv::Mat>> user_data)
+void VideoTask::SetUserData(std::shared_ptr<SafeQueue<cv::Mat>> user_data)
 {
     consumeQueue = user_data;
 }
 
-void VideoAnalyzer::SetUserData(std::shared_ptr<DoubleBufCache<std::vector<yolov5::Detection>>> user_data)
+void VideoTask::SetUserData(std::shared_ptr<DoubleBufCache<std::vector<yolov5::Detection>>> user_data)
 {
     resultCache = user_data;
 }
+
+}   // namespace edge
