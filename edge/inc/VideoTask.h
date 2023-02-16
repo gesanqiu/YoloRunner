@@ -4,7 +4,7 @@
  * @Author: Ricardo Lu<shenglu1202@163.com>
  * @Date: 2023-02-07 20:31:48
  * @LastEditors: Ricardo Lu
- * @LastEditTime: 2023-02-15 20:53:33
+ * @LastEditTime: 2023-02-16 21:40:45
  */
 #pragma once
 
@@ -16,7 +16,7 @@
         tmp.reset(new CLASSNAME()); \
         return tmp; \
     } \
-    static bool Bool##CLASSNAME = ChannelController::RegisterVideoTaskCreator(#CLASSNAME, std::bind(Create##CLASSNAME));
+    static bool Bool##CLASSNAME = edge::ChannelController::RegisterVideoTaskCreator(#CLASSNAME, std::bind(Create##CLASSNAME));
 
 namespace edge {
 
@@ -33,26 +33,13 @@ struct VideoTaskConfig {
 
 class VideoTask {
 public:
-    VideoTask(VideoTaskConfig& config);
-    ~VideoTask();
-    bool Init();
-    bool DeInit();
-    bool Start();
-    bool Stop();
-    void SetUserData(std::shared_ptr<SafeQueue<cv::Mat>> user_data);
-    void SetUserData(std::shared_ptr<DoubleBufCache<std::vector<yolov5::Detection>>> user_data);
-
-private:
-    VideoTaskConfig m_config;
-
-    bool isRunning;
-    void InferenceFrame();
-    std::shared_ptr<std::thread> inferThread;
-
-    std::unique_ptr<yolov5::Detector> detector;
-    std::unique_ptr<yolov5::Classes> classes;
-    std::shared_ptr<SafeQueue<cv::Mat>> consumeQueue;
-    std::shared_ptr<DoubleBufCache<std::vector<yolov5::Detection>>> resultCache;
+    virtual ~VideoTask() {};
+    virtual bool Init(const VideoTaskConfig& config) = 0;
+    virtual bool DeInit() = 0;
+    virtual bool Start() = 0;
+    virtual bool Stop() = 0;
+    virtual void SetUserData(std::shared_ptr<SafeQueue<cv::Mat>> user_data) = 0;
+    virtual void SetUserData(std::shared_ptr<DoubleBufCache<std::vector<yolov5::Detection>>> user_data) = 0;
 };
 
 }   // namespace edge

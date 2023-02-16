@@ -92,9 +92,10 @@ endif()
 # End Config Logger
 
 add_executable(${PROJECT_NAME}
-    src/VideoPipeline.cpp
-    src/VideoTask.cpp
+    src/DeepStreamPipeline.cpp
+    src/Yolov5Task.cpp
     src/YoloChannel.cpp
+    src/ChannelController.cpp
     src/main.cpp
 )
 

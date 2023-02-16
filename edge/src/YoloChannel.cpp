@@ -4,7 +4,7 @@
  * @Author: Ricardo Lu<shenglu1202@163.com>
  * @Date: 2023-02-12 12:43:22
  * @LastEditors: Ricardo Lu
- * @LastEditTime: 2023-02-15 21:00:13
+ * @LastEditTime: 2023-02-16 21:48:42
  */
 
 #include "YoloChannel.h"
@@ -21,13 +21,13 @@ YoloChannel::~YoloChannel()
     DeInit();
 }
 
-bool YoloChannel::Init()
+bool YoloChannel::Init(std::shared_ptr<VideoPipeline> pipeline, std::shared_ptr<VideoTask> task)
 {
-    m_vp = std::make_unique<VideoPipeline>(m_config.m_vpConfig);
-    m_vt = std::make_unique<VideoTask>(m_config.m_vtConfig);
+    m_vp = pipeline;
+    m_vt = task;
 
-    m_vp->Create();
-    m_vt->Init();
+    m_vp->Init(m_config.m_vpConfig);
+    m_vt->Init(m_config.m_vtConfig);
 
     m_imageQueue = std::make_shared<SafeQueue<cv::Mat>>();
     m_resultsCache = std::make_shared<DoubleBufCache<std::vector<yolov5::Detection>>>();
@@ -42,8 +42,8 @@ bool YoloChannel::Init()
 
 void YoloChannel::DeInit()
 {
-    if (m_vp) m_vp.reset(nullptr);
-    if (m_vt) m_vt.reset(nullptr);
+    if (m_vp) m_vp.reset();
+    if (m_vt) m_vt.reset();
 }
 
 bool YoloChannel::Start()

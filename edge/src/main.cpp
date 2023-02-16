@@ -4,7 +4,7 @@
  * @Author: Ricardo Lu<shenglu1202@163.com>
  * @Date: 2022-07-15 22:07:33
  * @LastEditors: Ricardo Lu
- * @LastEditTime: 2023-02-15 21:00:59
+ * @LastEditTime: 2023-02-16 21:26:42
  */
 
 #include <sys/stat.h>
@@ -16,11 +16,9 @@
 
 #include "Common.h"
 #include "ConfigParser.h"
-#include "YoloChannel.h"
+#include "ChannelController.h"
 
 static GMainLoop* g_main_loop = NULL;
-
-using namespace edge;
 
 static bool validateConfigPath(const char* name, const std::string& value) 
 { 
@@ -49,8 +47,7 @@ int main(int argc, char* argv[])
 
     g_setenv("GST_DEBUG_DUMP_DOT_DIR", "/home/ricardo/workSpace/YoloRunner/edge/build", true);
 
-    YoloChannelConfig yolo_channel_config;
-    YoloChannel* yolo_channel = nullptr;
+    edge::ChannelController* controller = new edge::ChannelController();
     std::ifstream in(FLAGS_config_file, std::ios::binary);
 
     if (!in.is_open()) {
@@ -63,24 +60,35 @@ int main(int argc, char* argv[])
         goto exit;
     }
 
-    if (CONFIG_PARSE_SUCCESS != ConfigParse(yolo_channel_config, in)) {
-        LOG_ERROR("Parse config file: {} error.", FLAGS_config_file);
-        goto exit;
-    }
-    LOG_INFO("Channel[{}] config success.", yolo_channel_config.m_chanelId);
-    yolo_channel = new YoloChannel(yolo_channel_config);
+    // while (true) {
+        if (!controller->AddChannel(in)) {
+            LOG_ERROR("ChannelController add channel failed.");
+            goto exit;
+        }
 
-    yolo_channel->Init();
-    yolo_channel->Start();
+        if (!controller->Start()) {
+            LOG_ERROR("ChannelController add channel failed.");
+            goto exit;
+        }
+
+        // sleep(100);
+
+        // if (!controller->DeInit()) {
+        //     LOG_ERROR("ChannelController add channel failed.");
+        //     goto exit;
+        // }
+    // }
 
     g_main_loop_run(g_main_loop);
 
 exit:
-    if (nullptr != yolo_channel) {
-        yolo_channel->DeInit();
-        delete yolo_channel;
-        yolo_channel = nullptr;
+    if (nullptr != controller) {
+        // yolo_channel->DeInit();
+        delete controller;
+        controller = nullptr;
     }
+
+    in.close();
 
     if (g_main_loop) g_main_loop_unref(g_main_loop);
 
