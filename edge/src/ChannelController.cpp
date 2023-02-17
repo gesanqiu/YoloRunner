@@ -4,7 +4,7 @@
  * @Author: Ricardo Lu<shenglu1202@163.com>
  * @Date: 2023-02-12 12:44:07
  * @LastEditors: Ricardo Lu
- * @LastEditTime: 2023-02-16 22:21:10
+ * @LastEditTime: 2023-02-17 21:53:13
  */
 
 #include "ChannelController.h"
@@ -19,7 +19,6 @@ class ChannelController::Impl {
 public:
     Impl() {
         m_channelList = std::make_shared<std::map<std::string, std::shared_ptr<YoloChannel>>>();
-        printf("==============channel list: %p\n", m_channelList.get());
     }
     ~Impl() { DeInit(); }
 
@@ -29,8 +28,10 @@ public:
 
     bool DeInit() {
         for (auto& [k, v] : *m_channelList) {
+            LOG_INFO("Deinit pipeline: {}", k);
             v.reset();
         }
+        m_channelList->clear();
         return true;
     }
 
@@ -150,6 +151,7 @@ public:
             LOG_ERROR("There is no channel named: {} in application, delete failed.", channel_id);
             return false;
         }
+        (*m_channelList)[channel_id]->DeInit();
         (*m_channelList)[channel_id].reset();
         m_channelList->erase(channel_id);
         return true;

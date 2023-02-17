@@ -4,7 +4,7 @@
  * @Author: Ricardo Lu<shenglu1202@163.com>
  * @Date: 2023-02-15 18:53:57
  * @LastEditors: Ricardo Lu
- * @LastEditTime: 2023-02-17 19:04:51
+ * @LastEditTime: 2023-02-17 21:53:16
  */
 
 #include <gstnvdsmeta.h>
@@ -811,17 +811,18 @@ bool DeepStreamPipeline::Resume(void)
 
 void DeepStreamPipeline::Destroy(void)
 {
-    GstPad* teeSrcPad;
+    LOG_INFO("Destory called");
+    // GstPad* teeSrcPad;
     GstPad* nvstreammuxSinkPad;
-    while(teeSrcPad = gst_element_get_request_pad(m_tee0, "src_%u")) {
-        gst_element_release_request_pad(m_tee0, teeSrcPad);
-        g_object_unref(teeSrcPad);
-    }
+    // while(teeSrcPad = gst_element_get_request_pad(m_tee0, "src_%u")) {
+    //     gst_element_release_request_pad(m_tee0, teeSrcPad);
+    //     g_object_unref(teeSrcPad);
+    // }
 
-    while(teeSrcPad = gst_element_get_request_pad(m_tee1, "src_%u")) {
-        gst_element_release_request_pad(m_tee1, teeSrcPad);
-        g_object_unref(teeSrcPad);
-    }
+    // while(teeSrcPad = gst_element_get_request_pad(m_tee1, "src_%u")) {
+    //     gst_element_release_request_pad(m_tee1, teeSrcPad);
+    //     g_object_unref(teeSrcPad);
+    // }
 
     while(nvstreammuxSinkPad = gst_element_get_request_pad(m_streammuxer, "sink_%u")) {
         gst_element_release_request_pad(m_streammuxer, nvstreammuxSinkPad);
@@ -865,22 +866,22 @@ void DeepStreamPipeline::Destroy(void)
     if (m_dec_sink_probe != -1 && m_decoder) {
         GstPad *gstpad = gst_element_get_static_pad(m_decoder, "sink");
         if (!gstpad) {
-            LOG_ERROR("Could not find '{}' in '{}'", "sink", GST_ELEMENT_NAME(m_decoder));
+            LOG_ERROR("Could not find '{}' pad in '{}'", "sink", GST_ELEMENT_NAME(m_decoder));
         }
         gst_pad_remove_probe(gstpad, m_dec_sink_probe);
         gst_object_unref(gstpad);
         m_dec_sink_probe = -1;
     }
 
-    if (m_queue00_src_probe != -1 && m_queue00) {
-        GstPad *gstpad = gst_element_get_static_pad(m_queue00, "src");
-        if (!gstpad) {
-            LOG_ERROR("Could not find '{}' in '{}'", "src", GST_ELEMENT_NAME(m_queue00));
-        }
-        gst_pad_remove_probe(gstpad, m_queue00_src_probe);
-        gst_object_unref(gstpad);
-        m_queue00_src_probe = -1;
-    }
+    // if (m_queue00_src_probe != -1 && m_queue00) {
+    //     GstPad *gstpad = gst_element_get_static_pad(m_queue00, "src");
+    //     if (!gstpad) {
+    //         LOG_ERROR("Could not find '{}' pad in '{}'", "src", GST_ELEMENT_NAME(m_queue00));
+    //     }
+    //     gst_pad_remove_probe(gstpad, m_queue00_src_probe);
+    //     gst_object_unref(gstpad);
+    //     m_queue00_src_probe = -1;
+    // }
 
     g_mutex_clear(&m_mutex);
     g_mutex_clear(&m_syncMuxtex);

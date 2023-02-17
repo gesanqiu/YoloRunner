@@ -4,7 +4,7 @@
  * @Author: Ricardo Lu<shenglu1202@163.com>
  * @Date: 2023-02-15 18:54:31
  * @LastEditors: Ricardo Lu
- * @LastEditTime: 2023-02-16 22:12:32
+ * @LastEditTime: 2023-02-17 21:55:37
  */
 
 #include "Yolov5Task.h"
@@ -21,12 +21,15 @@ void Yolov5Task::InferenceFrame()
         std::vector<yolov5::Detection> results;
         consumeQueue->consumption(image);
 
-        cv::Mat input;
-        cv::cvtColor(*image.get(), input, cv::COLOR_RGBA2RGB);
-        detector->detect(input, &results, yolov5::INPUT_RGB);
-        resultCache->feed(std::make_shared<std::vector<yolov5::Detection>>(results));
-        // LOG_INFO("queue size: {}, detected size: {}", consumeQueue->getCurrentSize(), results.size());
+        if (image) {
+            cv::Mat input;
+            cv::cvtColor(*image.get(), input, cv::COLOR_RGBA2RGB);
+            detector->detect(input, &results, yolov5::INPUT_RGB);
+            resultCache->feed(std::make_shared<std::vector<yolov5::Detection>>(results));
+            // LOG_INFO("queue size: {}, detected size: {}", consumeQueue->getCurrentSize(), results.size());
+        }
     }
+    LOG_INFO("Inference thread exit.");
 }
 
 Yolov5Task::Yolov5Task()
@@ -91,6 +94,7 @@ bool Yolov5Task::DeInit()
 {
     if (inferThread) {
         isRunning = false;
+        consumeQueue->exit();
         inferThread->join();
         inferThread.reset();
     }

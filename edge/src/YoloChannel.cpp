@@ -4,7 +4,7 @@
  * @Author: Ricardo Lu<shenglu1202@163.com>
  * @Date: 2023-02-12 12:43:22
  * @LastEditors: Ricardo Lu
- * @LastEditTime: 2023-02-16 21:48:42
+ * @LastEditTime: 2023-02-17 21:52:24
  */
 
 #include "YoloChannel.h"
@@ -44,6 +44,8 @@ void YoloChannel::DeInit()
 {
     if (m_vp) m_vp.reset();
     if (m_vt) m_vt.reset();
+    if (m_imageQueue) m_imageQueue.reset();
+    if (m_resultsCache) m_resultsCache.reset();
 }
 
 bool YoloChannel::Start()

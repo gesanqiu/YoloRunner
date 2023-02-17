@@ -4,7 +4,7 @@
  * @Author: Ricardo Lu<shenglu1202@163.com>
  * @Date: 2022-07-15 22:07:33
  * @LastEditors: Ricardo Lu
- * @LastEditTime: 2023-02-17 19:07:19
+ * @LastEditTime: 2023-02-17 21:43:19
  */
 
 #include <sys/stat.h>
@@ -48,7 +48,8 @@ int main(int argc, char* argv[])
     g_setenv("GST_DEBUG_DUMP_DOT_DIR", "/home/ricardo/workSpace/YoloRunner/edge/build", true);
 
     edge::ChannelController* controller = new edge::ChannelController();
-    std::ifstream in(FLAGS_config_file, std::ios::binary);
+    std::ifstream in(FLAGS_config_file, std::ios::in | std::ios::binary);
+    std::string config((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>()); 
 
     if (!in.is_open()) {
         LOG_ERROR("Failed to open config file: {}", FLAGS_config_file);
@@ -60,8 +61,8 @@ int main(int argc, char* argv[])
         goto exit;
     }
 
-    // while (true) {
-        if (!controller->AddChannel(in)) {
+    while (true) {
+        if (!controller->AddChannel(config)) {
             LOG_ERROR("ChannelController add channel failed.");
             goto exit;
         }
@@ -71,13 +72,15 @@ int main(int argc, char* argv[])
             goto exit;
         }
 
-        // sleep(100);
+        sleep(10);
 
-        // if (!controller->DeInit()) {
-        //     LOG_ERROR("ChannelController add channel failed.");
-        //     goto exit;
-        // }
-    // }
+        if (!controller->DeInit()) {
+            LOG_ERROR("ChannelController add channel failed.");
+            goto exit;
+        }
+
+        sleep(10);
+    }
 
     g_main_loop_run(g_main_loop);
 
