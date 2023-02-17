@@ -4,7 +4,7 @@
  * @Author: Ricardo Lu<shenglu1202@163.com>
  * @Date: 2023-02-12 12:43:29
  * @LastEditors: Ricardo Lu
- * @LastEditTime: 2023-02-15 20:53:55
+ * @LastEditTime: 2023-02-17 21:42:54
  */
 
 #pragma once
@@ -585,7 +585,7 @@ static int ConfigParse(YoloChannelConfig& config, std::string& configString)
     if (root.isMember("name")) {
         if (root["name"].isString()) {
             config.m_chanelId = root["name"].asString();
-            LOG_INFO("Channel ID: ", config.m_chanelId);
+            LOG_INFO("Channel ID: {}", config.m_chanelId);
         } else {
             LOG_ERROR("Channel ID error type.");
             return CONFIG_VALUE_TYPE_ERROR;
@@ -622,7 +622,7 @@ static int ConfigParse(YoloChannelConfig& config, std::ifstream& configStream)
     if (root.isMember("name")) {
         if (root["name"].isString()) {
             config.m_chanelId = root["name"].asString();
-            LOG_INFO("Channel ID: ", config.m_chanelId);
+            LOG_INFO("Channel ID: {}", config.m_chanelId);
         } else {
             LOG_ERROR("Channel ID error type.");
             return CONFIG_VALUE_TYPE_ERROR;
