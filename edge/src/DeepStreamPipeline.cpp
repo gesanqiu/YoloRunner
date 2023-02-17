@@ -4,7 +4,7 @@
  * @Author: Ricardo Lu<shenglu1202@163.com>
  * @Date: 2023-02-15 18:53:57
  * @LastEditors: Ricardo Lu
- * @LastEditTime: 2023-02-16 21:24:54
+ * @LastEditTime: 2023-02-17 19:04:51
  */
 
 #include <gstnvdsmeta.h>
@@ -812,6 +812,7 @@ bool DeepStreamPipeline::Resume(void)
 void DeepStreamPipeline::Destroy(void)
 {
     GstPad* teeSrcPad;
+    GstPad* nvstreammuxSinkPad;
     while(teeSrcPad = gst_element_get_request_pad(m_tee0, "src_%u")) {
         gst_element_release_request_pad(m_tee0, teeSrcPad);
         g_object_unref(teeSrcPad);
@@ -820,6 +821,11 @@ void DeepStreamPipeline::Destroy(void)
     while(teeSrcPad = gst_element_get_request_pad(m_tee1, "src_%u")) {
         gst_element_release_request_pad(m_tee1, teeSrcPad);
         g_object_unref(teeSrcPad);
+    }
+
+    while(nvstreammuxSinkPad = gst_element_get_request_pad(m_streammuxer, "sink_%u")) {
+        gst_element_release_request_pad(m_streammuxer, nvstreammuxSinkPad);
+        g_object_unref(nvstreammuxSinkPad);
     }
 
     if (m_pipeline) {
