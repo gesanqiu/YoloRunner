@@ -4,7 +4,7 @@
  * @Author: Ricardo Lu<shenglu1202@163.com>
  * @Date: 2023-02-07 20:23:08
  * @LastEditors: Ricardo Lu
- * @LastEditTime: 2023-02-08 20:41:39
+ * @LastEditTime: 2023-02-17 21:33:14
  */
 #pragma once
 
@@ -18,9 +18,10 @@ class SafeQueue {
 private:
     std::list<std::shared_ptr<T>> m_queue;
     std::mutex m_mutex;//全局互斥锁
-    std::condition_variable_any m_notEmpty;//全局条件变量（不为空）
-    std::condition_variable_any m_notFull;//全局条件变量（不为满）
+    std::condition_variable m_notEmpty;//全局条件变量（不为空）
+    std::condition_variable m_notFull;//全局条件变量（不为满）
     unsigned int m_maxSize;//队列最大容量
+    std::atomic<bool> m_isExit;
 
 private:
     //队列为空
@@ -34,6 +35,7 @@ private:
 
 public:
     SafeQueue(unsigned int maxSize = 25) {
+        m_isExit.store(false);
         this->m_maxSize = maxSize;
     }
 
@@ -54,25 +56,33 @@ public:
 
     ~SafeQueue(){}
 
+    void exit() {
+        m_isExit.store(true);
+        m_notEmpty.notify_all();
+        m_notFull.notify_all();
+    }
+
     void product(const std::shared_ptr<T>& v) {
         std::unique_lock<std::mutex> locker(m_mutex);
         while(isFull()) {
-            m_notFull.wait(m_mutex);
+            m_notFull.wait(locker);
         }
 
         m_queue.push_back(v);
         m_notEmpty.notify_one();
     }
+
     void consumption(std::shared_ptr<T>& v) {
         std::unique_lock<std::mutex> locker(m_mutex);
         while(isEmpty()) {
-            m_notEmpty.wait(m_mutex);
+            if (this->m_isExit.load()) {
+                return ;
+            }
+            m_notEmpty.wait(locker);
         }
 
         v = m_queue.front();
         m_queue.pop_front();
         m_notFull.notify_one();
     }
-
-    std::string debug_info;
 };
