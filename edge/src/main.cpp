@@ -4,7 +4,7 @@
  * @Author: Ricardo Lu<shenglu1202@163.com>
  * @Date: 2022-07-15 22:07:33
  * @LastEditors: Ricardo Lu
- * @LastEditTime: 2023-02-16 21:26:42
+ * @LastEditTime: 2023-02-17 19:07:19
  */
 
 #include <sys/stat.h>
@@ -32,7 +32,7 @@ static bool validateConfigPath(const char* name, const std::string& value)
         return true;
     }
 
-    LOG_ERROR("Can't stat model file: {}", value);
+    LOG_ERROR("Can't stat config file: {}", value);
     return false;
 }
 
