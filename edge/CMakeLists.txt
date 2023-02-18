@@ -100,6 +100,7 @@ add_executable(${PROJECT_NAME}
     src/YoloChannel.cpp
     src/ConfigCenter.cpp
     src/ChannelController.cpp
+    src/HttpServer.cpp
     src/main.cpp
 )
 

@@ -4,7 +4,7 @@
  * @Author: Ricardo Lu<shenglu1202@163.com>
  * @Date: 2023-02-15 18:53:41
  * @LastEditors: Ricardo Lu
- * @LastEditTime: 2023-02-16 21:17:57
+ * @LastEditTime: 2023-02-19 02:49:38
  */
 
 #pragma once
@@ -56,7 +56,6 @@ public:
 
     volatile int        m_syncCount;
     volatile bool       m_isExited;
-    bool                m_isFileLoop;
     GMutex              m_syncMuxtex;
     GCond               m_syncCondition;
     GMutex              m_mutex;

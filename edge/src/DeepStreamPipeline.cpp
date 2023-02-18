@@ -4,7 +4,7 @@
  * @Author: Ricardo Lu<shenglu1202@163.com>
  * @Date: 2023-02-15 18:53:57
  * @LastEditors: Ricardo Lu
- * @LastEditTime: 2023-02-17 21:53:16
+ * @LastEditTime: 2023-02-19 02:49:40
  */
 
 #include <gstnvdsmeta.h>
@@ -267,7 +267,6 @@ static GstPadProbeReturn cb_reset_stream_probe(
 
     if (info->type & GST_PAD_PROBE_TYPE_EVENT_BOTH) {
         if (GST_EVENT_TYPE(event) == GST_EVENT_EOS) {
-            vp->m_isFileLoop = true;
             g_timeout_add(1, cb_seek_decoded_file, vp);
         }
 
@@ -422,7 +421,6 @@ GstElement* DeepStreamPipeline::CreateUridecodebin()
     g_signal_connect(G_OBJECT(m_source), "child-added",  G_CALLBACK(
         cb_uridecodebin_child_added),  this);
 
-    // gst_bin_add_many(GST_BIN(m_sourcebin), m_source, nullptr);
     gst_bin_add_many(GST_BIN(m_pipeline), m_source, nullptr);
 
     return m_source;
@@ -893,7 +891,6 @@ bool DeepStreamPipeline::Init(const VideoPipelineConfig& config)
     m_config = config;
     m_syncCount = 0;
     m_isExited = false;
-    m_isFileLoop = false;
     m_queue00_src_probe = -1;
     m_cvt_sink_probe = -1;
     m_cvt_src_probe = -1;
