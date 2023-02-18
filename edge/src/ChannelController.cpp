@@ -4,7 +4,7 @@
  * @Author: Ricardo Lu<shenglu1202@163.com>
  * @Date: 2023-02-12 12:44:07
  * @LastEditors: Ricardo Lu
- * @LastEditTime: 2023-02-17 21:53:13
+ * @LastEditTime: 2023-02-18 10:33:28
  */
 
 #include "ChannelController.h"
@@ -87,6 +87,11 @@ public:
             return false;
         }
 
+        if (m_channelList->find(config.m_chanelId) != m_channelList->end()) {
+            LOG_ERROR("Add a chennel already exist.");
+            return false;
+        }
+
         if (pipeline_creators->find(config.m_vpConfig.pipeline_id) == pipeline_creators->end()) {
             LOG_ERROR("Can't find pipeline type: {}", config.m_vpConfig.pipeline_id);
             return false;
@@ -117,6 +122,11 @@ public:
         std::shared_ptr<YoloChannel> channel = nullptr;
         if (CONFIG_PARSE_SUCCESS != ConfigParse(config, config_stream)) {
             LOG_ERROR("Parse config file error.");
+            return false;
+        }
+
+        if (m_channelList->find(config.m_chanelId) != m_channelList->end()) {
+            LOG_ERROR("Add a chennel already exist.");
             return false;
         }
 
