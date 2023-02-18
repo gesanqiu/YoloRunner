@@ -9,6 +9,7 @@ set(CMAKE_CXX_STANDARD 17)
 find_package(OpenCV REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(CUDA REQUIRED)
+find_package(httplib REQUIRED)
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(GST    REQUIRED gstreamer-1.0)
@@ -42,6 +43,7 @@ include_directories(
     ${DeepStream_INCLUDE_DIRS}
     ${YOLOV5_TENSORRT_INCLUDE_DIRS}
     ${CUDA_INCLUDE_DIRS}
+    ${httplib_INCLUDE_DIRS}
 )
 
 link_directories(
@@ -54,6 +56,7 @@ link_directories(
     ${spdlog_LIBRARY_DIRS}
     ${DeepStream_LIBRARY_DIRS}
     ${YOLOV5_TENSORRT_LIBRARY_DIRS}
+    ${httplib_LIBRARY_DIRS}
 )
 
 # Config Logger
@@ -95,6 +98,7 @@ add_executable(${PROJECT_NAME}
     src/DeepStreamPipeline.cpp
     src/Yolov5Task.cpp
     src/YoloChannel.cpp
+    src/ConfigCenter.cpp
     src/ChannelController.cpp
     src/main.cpp
 )
@@ -116,4 +120,5 @@ target_link_libraries(${PROJECT_NAME}
     nvinfer
     nvonnxparser
     ${CUDA_CUDART_LIBRARY}
+    ${httplib_CUDART_LIBRARY}
 )

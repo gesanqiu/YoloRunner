@@ -4,12 +4,12 @@
  * @Author: Ricardo Lu<shenglu1202@163.com>
  * @Date: 2023-02-12 12:44:02
  * @LastEditors: Ricardo Lu
- * @LastEditTime: 2023-02-16 21:47:47
+ * @LastEditTime: 2023-02-18 17:40:58
  */
 
 #pragma once
 
-#include "ConfigParser.h"
+#include "ConfigCenter.h"
 #include "YoloChannel.h"
 #include "Common.h"
 

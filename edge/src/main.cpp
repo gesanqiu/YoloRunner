@@ -4,7 +4,7 @@
  * @Author: Ricardo Lu<shenglu1202@163.com>
  * @Date: 2022-07-15 22:07:33
  * @LastEditors: Ricardo Lu
- * @LastEditTime: 2023-02-17 21:43:19
+ * @LastEditTime: 2023-02-18 18:18:12
  */
 
 #include <sys/stat.h>
@@ -15,7 +15,6 @@
 #include <gflags/gflags.h>
 
 #include "Common.h"
-#include "ConfigParser.h"
 #include "ChannelController.h"
 
 static GMainLoop* g_main_loop = NULL;

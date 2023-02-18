@@ -1,26 +1,17 @@
 /*
- * @Description: YoloRunner config parser.
- * @version: 1.1
+ * @Description: MediaAI config parser.
+ * @version: 2.0
  * @Author: Ricardo Lu<shenglu1202@163.com>
- * @Date: 2023-02-12 12:43:29
+ * @Date: 2023-02-18 17:41:49
  * @LastEditors: Ricardo Lu
- * @LastEditTime: 2023-02-17 21:42:54
+ * @LastEditTime: 2023-02-18 18:39:58
  */
 
-#pragma once
+#include "ConfigCenter.h"
 
-#include "Common.h"
-#include "YoloChannel.h"
+namespace edge {
 
-#define CONFIG_PARSE_SUCCESS    0
-#define CONFIG_LACK_MEMBER      1
-#define CONFIG_VALUE_TYPE_ERROR 2
-
-static Json::Reader g_reader;
-
-using namespace edge;
-
-static int ConfigVideoTaskConfig(VideoTaskConfig& config, Json::Value& value)
+int ConfigCenter::ConfigVideoTaskConfig(VideoTaskConfig& config, Json::Value& value)
 {
     if (value.isMember("name")) {
         if (value["name"].isString()) {
@@ -97,7 +88,7 @@ static int ConfigVideoTaskConfig(VideoTaskConfig& config, Json::Value& value)
     return CONFIG_PARSE_SUCCESS;
 }
 
-static int ConfigVideoPipelineConfig(VideoPipelineConfig& config, Json::Value& value)
+int ConfigCenter::ConfigVideoPipelineConfig(VideoPipelineConfig& config, Json::Value& value)
 {
     if (value.isMember("name")) {
         if (value["name"].isString()) {
@@ -575,15 +566,19 @@ static int ConfigVideoPipelineConfig(VideoPipelineConfig& config, Json::Value& v
     return CONFIG_PARSE_SUCCESS;
 }
 
-static int ConfigParse(YoloChannelConfig& config, std::string& configString)
+int ConfigCenter::ConfigParse(YoloChannelConfig& config, std::string& configString)
 {
     LOG_INFO("Parse configurations from json string.");
 
     Json::Value root;
-    g_reader.parse(configString, root);
+    m_reader.parse(configString, root);
 
     if (root.isMember("name")) {
         if (root["name"].isString()) {
+            if (m_channelConfigNodes.find(root["name"].asString()) != m_channelConfigNodes.end()) {
+                LOG_ERROR("Channel already existed.");
+                return CONFIG_ALREADY_EXIST;
+            }
             config.m_chanelId = root["name"].asString();
             LOG_INFO("Channel ID: {}", config.m_chanelId);
         } else {
@@ -609,18 +604,25 @@ static int ConfigParse(YoloChannelConfig& config, std::string& configString)
         return CONFIG_LACK_MEMBER;
     }
 
+    // m_channelConfigs[config.m_chanelId] = config;
+    m_channelConfigNodes[config.m_chanelId] = root;
+    m_pipelineConfigNodes[config.m_chanelId] = root["VideoPipeline-Config"];
+    m_taskConfigNodes[config.m_chanelId] = root["VideoAnalyzer-Config"];
     return CONFIG_PARSE_SUCCESS;
 }
 
-static int ConfigParse(YoloChannelConfig& config, std::ifstream& configStream)
+int ConfigCenter::ConfigParse(YoloChannelConfig& config, std::ifstream& configStream)
 {
     LOG_INFO("Parse configurations from ifstream.");
-
     Json::Value root;
-    g_reader.parse(configStream, root);
+    m_reader.parse(configStream, root);
 
     if (root.isMember("name")) {
         if (root["name"].isString()) {
+            if (m_channelConfigNodes.find(root["name"].asString()) != m_channelConfigNodes.end()) {
+                LOG_ERROR("Channel already existed.");
+                return CONFIG_ALREADY_EXIST;
+            }
             config.m_chanelId = root["name"].asString();
             LOG_INFO("Channel ID: {}", config.m_chanelId);
         } else {
@@ -646,5 +648,55 @@ static int ConfigParse(YoloChannelConfig& config, std::ifstream& configStream)
         return CONFIG_LACK_MEMBER;
     }
 
+    // m_channelConfigs[config.m_chanelId] = config;
+    m_channelConfigNodes[config.m_chanelId] = root;
+    m_pipelineConfigNodes[config.m_chanelId] = root["VideoPipeline-Config"];
+    m_taskConfigNodes[config.m_chanelId] = root["VideoAnalyzer-Config"];
+
     return CONFIG_PARSE_SUCCESS;
 }
+
+std::string ConfigCenter::GetChannelList()
+{
+    Json::Value value;
+    for (auto& [k, v]: m_channelConfigNodes) {
+        value["channels"].append(k);
+    }
+    return value.toStyledString();
+}
+
+std::string ConfigCenter::GetChannelConfigString(const std::string& id)
+{
+    if (m_channelConfigNodes.find(id) == m_channelConfigNodes.end()) {
+        LOG_WARN("Channel: {} doesn't exist.", id);
+        return {};
+    }
+    return m_channelConfigNodes[id].toStyledString();
+}
+
+std::string ConfigCenter::GetVideoPipelineConfigString(const std::string& id)
+{
+    if (m_pipelineConfigNodes.find(id) == m_pipelineConfigNodes.end()) {
+        LOG_WARN("Channel: {} doesn't exist.", id);
+        return {};
+    }
+    return m_pipelineConfigNodes[id].toStyledString();
+}
+
+std::string ConfigCenter::GetVideoTaskConfigString(const std::string& id)
+{
+    if (m_taskConfigNodes.find(id) == m_taskConfigNodes.end()) {
+        LOG_WARN("Channel: {} doesn't exist.", id);
+        return {};
+    }
+    return m_taskConfigNodes[id].toStyledString();
+}
+
+void ConfigCenter::DeleteChannelConfig(const std::string& id)
+{
+    m_channelConfigNodes.erase(id);
+    m_pipelineConfigNodes.erase(id);
+    m_taskConfigNodes.erase(id);
+}
+
+}   // namespace edge

@@ -4,11 +4,10 @@
  * @Author: Ricardo Lu<shenglu1202@163.com>
  * @Date: 2023-02-12 12:44:07
  * @LastEditors: Ricardo Lu
- * @LastEditTime: 2023-02-18 10:33:28
+ * @LastEditTime: 2023-02-18 18:39:31
  */
 
 #include "ChannelController.h"
-#include "ConfigParser.h"
 
 namespace edge {
 
@@ -29,6 +28,7 @@ public:
     bool DeInit() {
         for (auto& [k, v] : *m_channelList) {
             LOG_INFO("Deinit pipeline: {}", k);
+            ConfigCenter::getInstance().DeleteChannelConfig(k);
             v.reset();
         }
         m_channelList->clear();
@@ -82,7 +82,7 @@ public:
     bool AddChannel(std::string& config_string) {
         YoloChannelConfig config;
         std::shared_ptr<YoloChannel> channel = nullptr;
-        if (CONFIG_PARSE_SUCCESS != ConfigParse(config, config_string)) {
+        if (CONFIG_PARSE_SUCCESS != ConfigCenter::getInstance().ConfigParse(config, config_string)) {
             LOG_ERROR("Parse config file error.");
             return false;
         }
@@ -120,7 +120,7 @@ public:
     bool AddChannel(std::ifstream& config_stream) {
         YoloChannelConfig config;
         std::shared_ptr<YoloChannel> channel = nullptr;
-        if (CONFIG_PARSE_SUCCESS != ConfigParse(config, config_stream)) {
+        if (CONFIG_PARSE_SUCCESS != ConfigCenter::getInstance().ConfigParse(config, config_stream)) {
             LOG_ERROR("Parse config file error.");
             return false;
         }
@@ -161,6 +161,7 @@ public:
             LOG_ERROR("There is no channel named: {} in application, delete failed.", channel_id);
             return false;
         }
+        ConfigCenter::getInstance().DeleteChannelConfig(channel_id);
         (*m_channelList)[channel_id]->DeInit();
         (*m_channelList)[channel_id].reset();
         m_channelList->erase(channel_id);
