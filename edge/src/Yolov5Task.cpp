@@ -4,7 +4,7 @@
  * @Author: Ricardo Lu<shenglu1202@163.com>
  * @Date: 2023-02-15 18:54:31
  * @LastEditors: Ricardo Lu
- * @LastEditTime: 2023-02-17 21:55:37
+ * @LastEditTime: 2023-02-19 03:00:29
  */
 
 #include "Yolov5Task.h"
@@ -120,6 +120,7 @@ bool Yolov5Task::Stop()
 {
     if (inferThread) {
         isRunning = false;
+        consumeQueue->exit();
         inferThread->join();
         inferThread.reset();
     }

@@ -4,7 +4,7 @@
  * @Author: Ricardo Lu<shenglu1202@163.com>
  * @Date: 2023-02-07 20:23:08
  * @LastEditors: Ricardo Lu
- * @LastEditTime: 2023-02-17 21:33:14
+ * @LastEditTime: 2023-02-19 03:02:28
  */
 #pragma once
 
@@ -76,6 +76,7 @@ public:
         std::unique_lock<std::mutex> locker(m_mutex);
         while(isEmpty()) {
             if (this->m_isExit.load()) {
+                v = nullptr;
                 return ;
             }
             m_notEmpty.wait(locker);
